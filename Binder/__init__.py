@@ -6,3 +6,8 @@ license     = GPLv3
 version     = 1.0
 url         = https://github.com/Techniex/binder
 """
+
+from . fileutil import fUtil
+#from . reader import Reader
+#from . writer import Writer
+from . fileio import *

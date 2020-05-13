@@ -7,9 +7,14 @@ version     = 1.0
 url         = https://github.com/Techniex/binder
 """
 import os
+from . import param
+from . import fileutil
 
-class Reader(fileUtil):
-  def _readTxt(filepath, **kwargs):
+class Reader(fileutil.fUtil):
+  def __init__(self):
+    super().__init__()
+    
+  def readTxt(self, filepath, **kwargs):
     """
     Description
     -----------
@@ -20,39 +25,35 @@ class Reader(fileUtil):
     Input Parameter
     ---------------
     filepath: Path of text based file to be read.
-    kwargs = dictionary with keys 
-      verbose: print debug statements, default: False
-    
+    kwargs = dictionary with keys     
       skiplines: integer to identify how many lines to skip and it won't be included in header or data, default = 0
+      headerlines: number of lines in header. if the keyword is not defined program doesn't look for header in file.
       skipwhitelines: if True, skips all white lines or lines only with comment identifier are skipped, default True
-      
-      header: to identify if it is required to read header separately or not, default = False
-      headerlines: number of lines in header. if the keyword is not defined but files first line contains this, still it works.
-      headerdict: to identify if header is needed to be read as key valye pair else all header lines will be in a separate list, default = False
-      headerdelimeter: to seperate key and value pair in header. if nt defined, headers are returned as lines.
-      
-      commentidentifier: character to be identified as starting of comment.
-      commentskip: skip comments in data section? if header is False then this works for top comment block also.
-      
-      startswithfilter: select lines only if it starts with a keyword.
-      startswithexclude: select lines only if keyword is not in of line else discard.
-      linefilter: select lines only if keyword is in the line.
-      lineexclude: select lines only if keyword is not in line else discard.
-      
-      columns: if data has columns in case of data is separated with delimeter, checked just after header.
-      delimeter: data returned as list of list separated by delimeter.
-    
+
+      commentidentifier: character to be identified as starting of comment. e.g. "#" for configfiles
+      headercommenthandler: 'skipcomment'/ 'uncomment'
+      datacommenthandler: 'skipcomment'/ 'uncomment'
+      removeinlinecomment: True/False
+
+      headerfilter: select lines only if starts with keyword
+      datafilter: select lines only if starts with keyword
+
+      headerdelimeter: to seperate key and value pair in header. if not defined, headers are returned as lines.
+      headerformat:
+
+      datadelimeter:
+      dataformat:
+
     Input Parameter Type
     --------------------
     filepath: string --> required
-    kwargs['verbose']: bool --> optional
-    kwargs['skiplines']: bool --> optional
+    kwargs['skiplines']: int --> optional
+    kwargs['commentidentifier']: str --> optional
     kwargs['skipwhitelines']: bool --> optional
     kwargs['header']: bool --> optional
     kwargs['headerlines']: int --> optional
     kwargs['headerdict']: bool --> optional
     kwargs['headerdelimeter']: str --> optional
-    kwargs['commentidentifier']: str --> optional
     kwargs['commentskip']: bool --> optional
     kwargs['startswithfilter']: str/list --> optional
     kwargs['startswithexclude']: str/list --> optional
@@ -75,22 +76,65 @@ class Reader(fileUtil):
     2. Implement the function in c for faster operations.
     
     """
-  
+    if self.verbose: print("Function call: readTxt(args)")
+
+    #initialize return
+    rdict = {'Error':self.error, 'Warning':self.warning}
+
+    # Load default kwargs if not provided by user
+    kwargs = self.__loadKwargs__(filepath, 'text', kwargs)
+
     # Read file get all lines in list
     with open(filepath , 'r') as infile:
-      origlines = infile..read().splitlines();
-    
-    # If no additional arguments are provided, return as it is
-    if list(kwargs.keys()) == []:
-      rdict['lines'] = origlines;
-      if kwargs['verbose']:
-        print("{file}: Read operation complete" %format(rdict['filename']));
-      return rdict;
+      origlines = infile.read().splitlines()
     
     #skiplines
-    #To Do: implement arguments
-      
-  def _readImg(filepath, **kwargs):
-    pass;
-  def _readRaw(filepath, **kwargs):
-    pass;
+    if type(kwargs['skiplines']) == int and kwargs['skiplines'] >= 0:
+      if kwargs['skiplines'] <= len(origlines):
+        origlines = origlines[kwargs['skiplines']:]
+      else:
+        self.error = 1
+        print(param.errordisc[self.error].format(filepath))
+        rdict['Error'] = self.error
+        return rdict
+    else:
+      self.warning += 1
+      if self.verbose: print("Warning[%d]: Number of skiplines has to be positive integer. No lines will be skipped."%self.warning)
+
+    # separate header and data
+    if kwargs['headerlines'] <= len(origlines) and kwargs['headerlines']>=0 and type(kwargs['headerlines']) == int:
+      header = origlines[0: kwargs['headerlines']]
+      data = origlines[kwargs['headerlines']:]
+    else:
+      self.error = 2
+      print(param.errordisc[self.error].format(para = 'headerlines',cd = '0 <= headerlines <= (totallines-skiplines)'))
+      rdict['Error'] = self.error
+      return rdict
+
+    # skip white lines
+    if kwargs['skipwhiteline']:
+      header = self.skipWhiteLine(header)
+      data = self.skipWhiteLine(data)
+    
+    #comment handler
+    header = self.__commentHandler__(header, kwargs['commentidentifier'], kwargs['headercommenthandler'])
+    data = self.__commentHandler__(data, kwargs['commentidentifier'], kwargs['datacommenthandler'])
+
+    #to-do:
+      #Handle docstring
+
+    # filter data
+    header = self.lineFilter(header, kwargs['headerfilter'])
+    data = self.lineFilter(data, kwargs['datafilter'])
+          
+    #format data
+    rdict['header'] = self.lineFormat(header, kwargs['headerformat'], kwargs['headerdelimeter'])
+    rdict['data'] = self.lineFormat(data, kwargs['dataformat'], kwargs['datadelimeter'])
+
+    return rdict
+    
+  #To Do: implement arguments      
+  def readImg(self, filepath, **kwargs):
+    pass
+  def readRaw(self, filepath, **kwargs):
+    pass

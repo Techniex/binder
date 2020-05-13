@@ -6,3 +6,10 @@ license     = GPLv3
 version     = 1.0
 url         = https://github.com/Techniex/binder
 """
+import Binder
+
+def main():
+  pass;
+
+if __name__ == '__main__':
+  main()
