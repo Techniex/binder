@@ -434,6 +434,7 @@ class fUtil():
     return [l for l in self.toList(lines) if l.strip() != '']
 
   def __commentHandler__(self, lines, linecomment, handle):
+    #to-do: handle if more than one comment identifier is present
     #todo: Handle bulk comments
     #todo: Handle inline comments
     if handle in param.commenthandlermethod and linecomment !='':
