@@ -39,7 +39,7 @@ def readfile(filepath, **kwargs):
       if r.verbose: print("Warning[%d]: reading method specified is not supported, reading as %s."%(r.warning, param.default))
       ra = param.default
   else:
-    ra = r.Reader__getReadMethod__(filepath)
+    ra = r.__getReadMethod__(filepath)
 
   # read file
   if ra == 'text':
@@ -50,8 +50,8 @@ def readfile(filepath, **kwargs):
     rdict = r._readRaw(filepath,**kwargs)
 
   # remove empty keys
-  for key in rdict.keys():
-    if rdict[key] ==[] or rdict[key] == {}:
-      del rdict[key]
-
+  #for key in rdict.keys():
+  #  if rdict[key] ==[] or rdict[key] == {}:
+  #    del rdict[key]
+  
   return rdict

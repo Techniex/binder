@@ -25,6 +25,7 @@ def test_toList():
   assert f.toList([10, 'test']) == [10, 'test']
 
 def test_getFiles():
+  #todo
   pass
 
 def test_parseString():
@@ -40,10 +41,13 @@ def test_parseString():
   assert f.parseString("0.1.20") == "0.1.20"
 
 def test_parseBin():
+  #todo
   pass
 
 def test_pathValid():
+  #todo
   pass
 
 def test_getFileType():
+  #todo
   pass

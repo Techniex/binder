@@ -9,6 +9,7 @@ url         = https://github.com/Techniex/binder
 import os
 from . import param
 from . import fileutil
+import cv2
 
 class Reader(fileutil.fUtil):
   def __init__(self):
@@ -112,7 +113,7 @@ class Reader(fileutil.fUtil):
       return rdict
 
     # skip white lines
-    if kwargs['skipwhiteline']:
+    if kwargs['skipwhitelines']:
       header = self.skipWhiteLine(header)
       data = self.skipWhiteLine(data)
     
@@ -135,6 +136,11 @@ class Reader(fileutil.fUtil):
     
   #To Do: implement arguments      
   def readImg(self, filepath, **kwargs):
-    pass
+    return cv2.imread(filepath, -1)
+
   def readRaw(self, filepath, **kwargs):
-    pass
+    with open(filepath , 'rb') as rawfile:
+      xs= bytearray(b'')
+      for line in rawfile:
+        xs = xs + line
+    return xs

@@ -6,11 +6,12 @@ license     = GPLv3
 version     = 1.0
 url         = https://github.com/Techniex/binder
 """
+from . import fileutil
 
-class Writer(fileutil):
-  def writeTxt(filepath, data, **kwargs):
-    pass;
-  def writeRaw(filepath, data, **kwargs):
-    pass;
-  def writeImg(filepath, data, **kwargs):
-    pass;
+class Writer(fileutil.fUtil):
+  def writeTxt(self, filepath, data, **kwargs):
+    pass
+  def writeRaw(self, filepath, data, **kwargs):
+    pass
+  def writeImg(self, filepath, data, **kwargs):
+    pass
