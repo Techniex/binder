@@ -8,6 +8,7 @@
 ![GitHub language count](https://img.shields.io/github/languages/count/techniex/binder)
 ![GitHub top language](https://img.shields.io/github/languages/top/techniex/binder)
 ![GitHub last commit](https://img.shields.io/github/last-commit/techniex/binder)
+![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/techniex/binder/master)
 </div>
 
 python library for ease of file operations
