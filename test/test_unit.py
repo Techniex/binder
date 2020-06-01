@@ -13,20 +13,21 @@ sys.path.insert(1, "..")
 import Binder
 
 f = Binder.fUtil()
+f.verbose = True
 #r = Binder.Reader();
 #w = Binder.Writer();
 
-def test_toList():
+def test_to_list():
   # check with string
-  assert f.toList('test') == ['test']
+  assert f.to_list('test') == ['test']
   # check with int
-  assert f.toList(15) == [15]
+  assert f.to_list(15) == [15]
   # check with list
-  assert f.toList([10, 'test']) == [10, 'test']
+  assert f.to_list([10, 'test']) == [10, 'test']
 
 def test_getFiles():
-  #todo
-  pass
+  print(f.getFiles(r"./testdir"))
+  assert 1==1
 
 def test_parseString():
   # check with string and whitespaces
@@ -51,3 +52,22 @@ def test_pathValid():
 def test_getFileType():
   #todo
   pass
+
+def test_str_filter():
+  with open(r"./testdir/filtertext.txt", 'r') as flread:
+    lines = flread.read().splitlines()
+  fil1 = "#"
+  exmp1 = ["*#", "#*"]
+  fil2 = ["(this)#", "#(keyword)#", "#(keyword)", "*(okay)*"]
+  exmp2 = ["okay!"]
+  fil3 = ["(this)#", "#(keyword)#", "#(keyword)", "(good)*"]
+  exmp3 = ["good again"]
+  fil4 = ["(this)#", "#(keyword)#", "#(keyword)", "*(.)"]
+  exmp4 = ["line is fine to read."]
+  fil5 = ["(this)#", "#(keyword)#", "#(keyword)", "-*(okay)*", "(good)*"]
+  exmp5 = ["okay!", "good again"]
+  assert f.str_filter(lines, fil1) == exmp1
+  assert f.str_filter(lines, fil2) == exmp2
+  assert f.str_filter(lines, fil3) == exmp3
+  assert f.str_filter(lines, fil4) == exmp4
+  assert f.str_filter(lines, fil5) == exmp5
