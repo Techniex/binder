@@ -77,64 +77,58 @@ class Reader(fileutil.fUtil):
     2. Implement the function in c for faster operations.
     
     """
-    if self.verbose: print("Function call: readTxt(args)")
+    if self.verbose:
+      print("Function call: readTxt(args)")
 
     #initialize return
     rdict = {'Error':self.error, 'Warning':self.warning}
 
     # Load default kwargs if not provided by user
-    kwargs = self.__loadKwargs__(filepath, 'text', kwargs)
+    kwargs = self.__loadkwargs__(filepath, 'text', kwargs)
 
     # Read file get all lines in list
     with open(filepath , 'r') as infile:
       origlines = infile.read().splitlines()
     
     #skiplines
-    if type(kwargs['skiplines']) == int and kwargs['skiplines'] >= 0:
-      if kwargs['skiplines'] <= len(origlines):
-        origlines = origlines[kwargs['skiplines']:]
-      else:
-        self.error = 1
-        print(param.errordisc[self.error].format(filepath))
-        rdict['Error'] = self.error
-        return rdict
-    else:
-      self.warning += 1
-      if self.verbose: print("Warning[%d]: Number of skiplines has to be positive integer. No lines will be skipped."%self.warning)
-
-    # separate header and data
-    if kwargs['headerlines'] <= len(origlines) and kwargs['headerlines']>=0 and type(kwargs['headerlines']) == int:
-      header = origlines[0: kwargs['headerlines']]
-      data = origlines[kwargs['headerlines']:]
-    else:
-      self.error = 2
-      print(param.errordisc[self.error].format(para = 'headerlines',cd = '0 <= headerlines <= (totallines-skiplines)'))
-      rdict['Error'] = self.error
-      return rdict
+    origlines = origlines[kwargs['skiplines']:]
+    
+    # separate header, data, footer
+    outfile = {}
+    outfile['header'] = origlines[0: kwargs['headerlines']]
+    outfile['data'] = origlines[kwargs['headerlines']:len(origlines)-kwargs['footerlines']]
+    outfile['footer'] = origlines[kwargs['footerlines']:]
 
     # skip white lines
     if kwargs['skipwhitelines']:
-      header = self.skipWhiteLine(header)
-      data = self.skipWhiteLine(data)
+      for key in outfile.keys():
+        outfile[key] = self.skip_white_line(outfile[key])
     
     #comment handler
-    header = self.__commentHandler__(header, kwargs['commentidentifier'], kwargs['headercommenthandler'])
-    data = self.__commentHandler__(data, kwargs['commentidentifier'], kwargs['datacommenthandler'])
+    if kwargs['comment_maipulation']:
+      for key in outfile.keys():
+        outfile[key] = self.comment_handler(outfile[key],kwargs[key+'_comment_handle'])[0]
 
-    #to-do:
-      #Handle docstring
+    #Handle docstring
+    docstring = {}
+    if kwargs['read_docstring']:
+      for key in outfile.keys():
+        outval = self.comment_handler(outfile[key],kwargs[key+'_docstring_handle'])[0]
+        outfile[key] = outval[0]
+        docstring[key] = outval[1]
 
     # filter data
-    header = self.lineFilter(header, kwargs['headerfilter'])
-    data = self.lineFilter(data, kwargs['datafilter'])
+    for key in outfile.keys():
+      outfile[key] = self.str_filter(outfile[key], kwargs[key+'_header_filter'])
           
     #format data
-    rdict['header'] = self.lineFormat(header, kwargs['headerformat'], kwargs['headerdelimeter'])
-    rdict['data'] = self.lineFormat(data, kwargs['dataformat'], kwargs['datadelimeter'])
+    for key in outfile.keys():
+      outfile[key] = self.lineFormat(outfile[key], kwargs[key+'_format'], kwargs[key+'_delimeter'])
 
+    rdict.update(outfile)
+    rdict.update(docstring)
     return rdict
-    
-  #To Do: implement arguments      
+         
   def readImg(self, filepath, **kwargs):
     return cv2.imread(filepath, -1)
 

@@ -41,10 +41,10 @@ groupas = {'int8':'b', 'uint8':'B', 'int16':'h', 'uint16':'H', 'int32':'i', 'uin
 bytecount = {'int8':1, 'uint8':1, 'int16':2, 'uint16':2, 'int32':4, 'uint32':4, 'int64':8, 'uint64':8, 'str':1, 'single':4, 'double':8}
 
 #supported formats
-supportedformat = ['dict', 'line', 'list']
+supportedformat = ['dict', 'line', 'list', 'vdict', 'vlist']
 
 #commentmethod
-commenthandlermethod = ['skipcomment' , 'uncomment']
+comment_method = ['skip' , 'uncomment', 'read']
 
 #error description
 errordisc = {0: 'File operation complete : {file}:',

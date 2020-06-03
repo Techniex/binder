@@ -8,6 +8,7 @@ url         = https://github.com/Techniex/binder
 """
 
 import sys
+import os
 sys.path.insert(1, "..")
 
 import Binder
@@ -25,21 +26,24 @@ def test_to_list():
   # check with list
   assert f.to_list([10, 'test']) == [10, 'test']
 
-def test_getFiles():
-  print(f.getFiles(r"./testdir"))
-  assert 1==1
+def test_get_files():
+  res1 = ['fileio.py', 'fileutil.py', 'param.py', 'reader.py',\
+    'writer.py', '__init__.py', '__main__.py']
+  exp1 = [os.path.basename(filename) \
+    for filename in f.get_files(r"..",filters=["*(Binder)*", "*(py)"])]
+  assert exp1==res1
 
-def test_parseString():
+def test_parse_string():
   # check with string and whitespaces
-  assert f.parseString("  yes  ") == "yes"
+  assert f.parse_string("  yes  ") == "yes"
   # check with integer
-  assert f.parseString("100") == 100
-  assert f.parseString("-20") == -20
-  assert f.parseString("+10") == 10
+  assert f.parse_string("100") == 100
+  assert f.parse_string("-20") == -20
+  assert f.parse_string("+10") == 10
   # check with float
-  assert f.parseString("1.20") == 1.20
-  assert f.parseString("-1.20") == -1.20
-  assert f.parseString("0.1.20") == "0.1.20"
+  assert f.parse_string("1.20") == 1.20
+  assert f.parse_string("-1.20") == -1.20
+  assert f.parse_string("0.1.20") == "0.1.20"
 
 def test_parseBin():
   #todo
