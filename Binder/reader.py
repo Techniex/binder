@@ -11,7 +11,7 @@ from . import param
 from . import fileutil
 import cv2
 
-class Reader(fileutil.fUtil):
+class Reader(fileutil.FileUtil):
   def __init__(self):
     super().__init__()
     
@@ -98,11 +98,6 @@ class Reader(fileutil.fUtil):
     outfile['header'] = origlines[0: kwargs['headerlines']]
     outfile['data'] = origlines[kwargs['headerlines']:len(origlines)-kwargs['footerlines']]
     outfile['footer'] = origlines[kwargs['footerlines']:]
-
-    # skip white lines
-    if kwargs['skipwhitelines']:
-      for key in outfile.keys():
-        outfile[key] = self.skip_white_line(outfile[key])
     
     #comment handler
     if kwargs['comment_maipulation']:
@@ -119,12 +114,16 @@ class Reader(fileutil.fUtil):
 
     # filter data
     for key in outfile.keys():
-      outfile[key] = self.str_filter(outfile[key], kwargs[key+'_header_filter'])
+      outfile[key] = self.str_filter(outfile[key], kwargs[key+'_filter'])
           
     #format data
+    dataformat = {}
     for key in outfile.keys():
-      outfile[key] = self.lineFormat(outfile[key], kwargs[key+'_format'], kwargs[key+'_delimeter'])
-
+      data = self.line_format(outfile[key], kwargs[key+'_format'], kwargs[key+'_delimeter'], kwargs[key+"_comment_handle"])
+      outfile[key] = data[1]
+      dataformat[key] = data[0]
+    
+    rdict.update(dataformat)
     rdict.update(outfile)
     rdict.update(docstring)
     return rdict

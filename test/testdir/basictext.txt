@@ -1,0 +1,30 @@
+skiplines = 2
+This test file is written for testing functanality of readTxt function.
+headerlines = 4
+author = Purnendu Kumar
+date = may 14th 2020
+testcoverage = skipline, header, data, line comment, inline comment, whitespace, bulk comment, docstring, formatting, 'comment in string'
+Data starts here.
+
+Previous line is white space.
+%this line is comment.
+Hi How are you % shy boy: this is inline comment
+# File has 2 comment identifier
+
+desc
+"""
+it is a docstring. as description of desc
+"""
+
+"""
+this is another docstring. as orphan it will be considered as orphan
+so good.
+"""
+
+/*this is bulk comment
+going through multiple lines*\
+
+Here is an example where comment is with escapeline \# so it should be visible.
+here is an example where comment is inside "this is # string" string.
+here is an example where comment is inside 'this is another % string' string.
+This is the end.

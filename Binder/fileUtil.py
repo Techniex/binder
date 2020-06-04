@@ -439,8 +439,8 @@ class FileUtil():
         -------
         List of strings without line comments
         """
-        initial_lines = self.to_list(lines)
-        for line in initial_lines:
+        out= self.to_list(lines)
+        for line in out:
             linecs = [item for item in lcid if item in line and echar+item not in line]
             if len(linecs != 0):
                 if len(linecs) > 1:
@@ -513,7 +513,7 @@ class FileUtil():
             else:
                 comflag = False
         return comment
-    # to do : Add escape condition
+    # todo : Add escape condition
     def uncomment_block(self, lines, mlcid, echar):
         """
         Description
@@ -538,7 +538,7 @@ class FileUtil():
             if (echar+mlcid[1] not in line) and (mlcid[1] in line):
                 line.replace(mlcid[1], '')
         return out
-    # to do : Add escape condition
+    # todo : Add escape condition
     def skip_block_comment(self, lines, mlcid, echar):
         """
         Description
@@ -570,7 +570,7 @@ class FileUtil():
                 else:
                     line = ''
         return out
-    # to do : Add escape condition
+    # todo : Add escape condition
     def read_block_comment(self, lines, mlcid, echar):
         """
         Description
@@ -594,7 +594,7 @@ class FileUtil():
         comflag = False
         for count, line in enumerate(out):
             pline = self.parse_string(line)
-            if not comfalg:
+            if not comflag:
                 if pline.startswith(mlcid[0]):
                     if count == 0:
                         comment[comkey] = []
@@ -681,27 +681,62 @@ class FileUtil():
 
         return out
 
-    def line_format(self, lines, form, dlm):
+    def line_format(self, lines, form, dlm, handle):
+        """
+        Description
+        -----------
+        Format the input string lines as specified
+
+        Arguments
+        ---------
+            lines(str/list): input data
+            form(str): output format
+            dlm(str/list): delimeter [max length 2, min length 1]
+            handle(dict): to remove inline comments
+
+        Returns
+        -------
+        formatted data as list / list of list / dict
+        """
         out = self.to_list(lines)
         if form in param.supportedformat:
             dlm = self.to_list(dlm)
             if form == 'dict':
-                d = {}
-                for l in out:
-                    sp = [self.parse_string(string) for string in l.strip().split(str(dlm[0]), 1)]
-                    if len(sp) == 1:
-                        d[sp[0]] = ''
+                dout = {}
+                for line in out:
+                    splt = [self.parse_string(string) for string in line.strip().split(str(dlm[0]), 1)]
+                    if len(splt) == 1:
+                        dout[splt[0]] = ''
                     else:
-                        d[sp[0]] = sp[1]
+                        dout[splt[0]] = splt[1]
                 if len(dlm) == 2:
-                    for key in d.keys():
-                        d[key] = [self.parse_string(string) for string in d[key].split[str(dlm[1])]]
-                out = d
-            elif form == 'list':
+                    for key in dout.keys():
+                        dout[key] = [self.parse_string(string) for string in dout[key].split[str(dlm[1])]]
+                        # to - do : correct handle
+                        dout[key] = self.comment_handler(dout[key], handle)
+                out = dout
+            elif form == 'list' or form == 'vlist' or form == 'vdict':
                 out = [[self.parse_string(string) for string in l.strip().split(str(dlm[0]), 1)] for l in out]
+                if form == 'vlist' or form == 'vdict' :
+                    if len(list(set([len(line) for line in out]))) == 1:
+                        out = [[out[lineitr][itr] for lineitr in range(0,len(out))] for itr in range(0,len(out[0]))]
+                        if form == 'vdict':
+                            dout = {}
+                            for line in out:
+                                dout[line[0]] = line[1:]
+                            out = dout
+                            form = 'vdict'
+                        else:
+                            form = 'vlist'
+                    else:
+                        form = 'list'
+                        self.warning = self.warning + 1
+                        print("Warning %d: size mismatch"%self.warning)
             else:
+                form = 'line'
                 pass
         else:
+            form = 'line'
             self.warning = self.warning + 1
             print("Warning: Selected formatting is not supported. returning list of lines")
-        return out
+        return [form, out]

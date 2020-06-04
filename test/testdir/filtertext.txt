@@ -1,0 +1,8 @@
+this is a commentline need to be removed
+another line with keyword in mid.
+line ends with keyword
+*#
+#*
+okay!
+good again
+line is fine to read.
