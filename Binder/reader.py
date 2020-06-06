@@ -99,21 +99,21 @@ class Reader(fileutil.FileUtil):
             kwargs['skip_top'], kwargs['skip_bottom'])
 
         #comment handler
-        inline = kwargs['comment_handle']['remove_inline_comment']
-        kwargs['comment_handle']['remove_inline_comment'] = False
+        inline = kwargs['comment_handler']['remove_inline_comment']
+        kwargs['comment_handler']['remove_inline_comment'] = False
         [stripped_lines, docstring] = self.comment_handler(selected_lines,\
-             kwargs['comment_handle'])
-        kwargs['comment_handle']['comment_method'] = 'none'
-        kwargs['comment_handle']['docstring_method'] = 'none'
-        kwargs['comment_handle']['skip_white_line'] = False
-        kwargs['comment_handle']['remove_inline_comment'] = inline
+             kwargs['comment_handler'])
+        kwargs['comment_handler']['comment_method'] = 'none'
+        kwargs['comment_handler']['docstring_method'] = 'none'
+        kwargs['comment_handler']['skip_white_line'] = False
+        kwargs['comment_handler']['remove_inline_comment'] = inline
 
         # filter data
         filtered_lines = self.str_filter(stripped_lines, kwargs['filters'])
 
         #format data
         [data_format, formatted_data] = self.line_format(filtered_lines,\
-             kwargs['data_format'], kwargs['delimeter'], kwargs["comment_handle"])
+             kwargs['data_format'], kwargs['delimeter'], kwargs["comment_handler"])
 
         rdict['data'] = formatted_data
         rdict['docstring'] = docstring

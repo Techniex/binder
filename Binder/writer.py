@@ -8,7 +8,7 @@ url         = https://github.com/Techniex/binder
 """
 from . import fileutil
 
-class Writer(fileutil.fUtil):
+class Writer(fileutil.FileUtil):
   def writeTxt(self, filepath, data, **kwargs):
     # TODO : write list, dict, line, vdict, vlist and append methods
     pass

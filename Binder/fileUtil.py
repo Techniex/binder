@@ -120,7 +120,7 @@ class FileUtil():
     # Comment Methods
     #####################################################################
 
-    def comment_handler(self, lines, handle, final_format=False):
+    def comment_handler(self, lines, handle):
         initial_lines = self.__to_list__(lines)
         dsl = {}
         dsml = {}
@@ -145,7 +145,7 @@ class FileUtil():
         else:
             dsml_comment_out = multi_line_comment_out
         # skip white line
-        if handle['skip_white_line']:
+        if handle['skip_white_lines']:
             out = self.__skip_white_line__(dsml_comment_out, handle['lcid'])
         else:
             out = dsml_comment_out
@@ -491,7 +491,7 @@ class FileUtil():
         -------
         Stripped lines(list)
         """
-        lines = self.to_list(lines)
+        lines = self.__to_list__(lines)
         if len(args) == 0:
             skip_top = 0
             skip_bottom = 0
