@@ -7,7 +7,7 @@ version     = 1.0
 url         = https://github.com/Techniex/binder
 """
 
-from . fileutil import fUtil
+from . fileutil import FileUtil
 #from . reader import Reader
 #from . writer import Writer
 from . fileio import *
