@@ -24,7 +24,7 @@ class FileUtil():
         delete_files(path, force=False) # TODO: delete files
         parse_bin(bytearr, groupas, **kwargs)
         str_filter(lines, filterval)
-        line_format(lines, form, dlm) # 
+        line_format(lines, form, dlm)
         write_format(data, dataformat) # TODO: write data from list, dict, vlist, vdict
 
     Class Private Methods
@@ -41,7 +41,7 @@ class FileUtil():
         __read_line_comment__(lines, lcid)
         __uncomment_block__(lines, mlcid, echar)
         __skip_block_comment__(lines, mlcid, echar)
-        __read_block_comment__(lines, mlcid, echar)        
+        __read_block_comment__(lines, mlcid, echar)
         __to_list__(data)
     """
     def __init__(self, verbose=False):
@@ -85,7 +85,7 @@ class FileUtil():
                 updated_kwargs['skip_bottom'] = kwargs['skip_bottom']
         # filters
         if 'filters' in kwargs:
-            filters = self.__to_list__(kwargs['filters'])   
+            filters = self.__to_list__(kwargs['filters'])
             if all(isinstance(fil, str) for fil in filters):
                 updated_kwargs['filters'] = kwargs['filters']
         # data_format
@@ -121,27 +121,35 @@ class FileUtil():
     #####################################################################
 
     def comment_handler(self, lines, handle):
+        """
+        Handles comments
+        """
         initial_lines = self.__to_list__(lines)
         dsl = {}
         dsml = {}
         # comments
         if handle['comment_method'] == 'skip':
             line_comment_out = self.__skip_line_comment__(initial_lines, handle['lcid'])
-            multi_line_comment_out = self.__skip_block_comment__(line_comment_out, handle['mlcid'], handle['escape_char'])
+            multi_line_comment_out = self.__skip_block_comment__\
+                (line_comment_out, handle['mlcid'], handle['escape_char'])
         elif handle['comment_method'] == 'uncomment':
             line_comment_out = self.__uncomment_line__(initial_lines, handle['lcid'])
-            multi_line_comment_out = self.__uncomment_block__(line_comment_out, handle['mlcid'], handle['escape_char'])
+            multi_line_comment_out = self.__uncomment_block__\
+                (line_comment_out, handle['mlcid'], handle['escape_char'])
         else:
             multi_line_comment_out = initial_lines
         # docstring
         if handle['docstring_method'] == 'skip':
             dsl_comment_out = self.__skip_line_comment__(multi_line_comment_out, handle['ldocid'])
-            dsml_comment_out = self.__skip_block_comment__(dsl_comment_out, handle['mldocid'], handle['escape_char'])
+            dsml_comment_out = self.__skip_block_comment__\
+                (dsl_comment_out, handle['mldocid'], handle['escape_char'])
         elif handle['docstring_method'] == 'read':
             dsl = self.__read_line_comment__(multi_line_comment_out, handle['ldocid'])
-            dsml = self.__read_block_comment__(multi_line_comment_out, handle['mldocid'], handle['escape_char'])
+            dsml = self.__read_block_comment__\
+                (multi_line_comment_out, handle['mldocid'], handle['escape_char'])
             dsl_comment_out = self.__skip_line_comment__(multi_line_comment_out, handle['ldocid'])
-            dsml_comment_out = self.__skip_block_comment__(dsl_comment_out, handle['mldocid'], handle['escape_char'])
+            dsml_comment_out = self.__skip_block_comment__\
+                (dsl_comment_out, handle['mldocid'], handle['escape_char'])
         else:
             dsml_comment_out = multi_line_comment_out
         # skip white line
@@ -219,7 +227,7 @@ class FileUtil():
             else:
                 if self.verbose:
                     print("Info : Restoring default value for comment_handler['%s']"\
-                        %(self.warning, key))
+                        %(key))
         return default_handler
 
     def __skip_line_comment__(self, lines, lcid):
@@ -263,10 +271,10 @@ class FileUtil():
         -------
         List of strings without line comments
         """
-        out= self.__to_list__(lines)
+        out = self.__to_list__(lines)
         for line in out:
             linecs = [item for item in lcid if item in line and echar+item not in line]
-            if len(linecs != 0):
+            if len(linecs) != 0:
                 if len(linecs) > 1:
                     comidx = []
                     for linec in linecs:
@@ -468,7 +476,7 @@ class FileUtil():
         """
         if self.verbose:
             print("Function Call: __to_list__(args)")
-        if not type(data) == list:
+        if not isinstance(data, list):
             listdata = [data]
         else:
             listdata = data.copy()
@@ -553,7 +561,7 @@ class FileUtil():
                 print("Warning %d: skip_bottom(arg[1]) should be either str or int, neglected."\
                     %(self.warning))
             stripped_lines = top_stripped_lines
-        
+
         return stripped_lines
 
     def str_filter(self, lines, filterval):
@@ -585,7 +593,7 @@ class FileUtil():
         list of filtered strings
 
         """
-        initial_lines =self.__to_list__(lines)
+        initial_lines = self.__to_list__(lines)
         out = initial_lines.copy()
         filterval = self.__to_list__(filterval)
         orval = []
@@ -649,22 +657,26 @@ class FileUtil():
             if form == 'dict':
                 dout = {}
                 for line in out:
-                    splt = [self.parse_string(string) for string in line.strip().split(str(dlm[0]), 1)]
+                    splt = [self.parse_string(string) \
+                        for string in line.strip().split(str(dlm[0]), 1)]
                     if len(splt) == 1:
                         dout[splt[0]] = ''
                     else:
                         dout[splt[0]] = splt[1]
                 if len(dlm) == 2:
-                    for key in dout.keys():
-                        dout[key] = [self.parse_string(string) for string in dout[key].split[str(dlm[1])]]
+                    for key in dout:
+                        dout[key] = [self.parse_string(string) \
+                            for string in dout[key].split[str(dlm[1])]]
                         # TODO : correct handle
                         dout[key] = self.comment_handler(dout[key], handle)
                 out = dout
-            elif form == 'list' or form == 'vlist' or form == 'vdict':
-                out = [[self.parse_string(string) for string in l.strip().split(str(dlm[0]), 1)] for l in out]
-                if form == 'vlist' or form == 'vdict' :
+            elif form in ['list', 'vlist', 'vdict']:
+                out = [[self.parse_string(string) \
+                    for string in l.strip().split(str(dlm[0]), 1)] for l in out]
+                if form in ['vlist', 'vdict']:
                     if len(list(set([len(line) for line in out]))) == 1:
-                        out = [[out[lineitr][itr] for lineitr in range(0,len(out))] for itr in range(0,len(out[0]))]
+                        out = [[out[lineitr][itr] for lineitr in range(0, len(out))] \
+                            for itr in range(0, len(out[0]))]
                         if form == 'vdict':
                             dout = {}
                             for line in out:
@@ -739,14 +751,17 @@ class FileUtil():
         # Convert if convertable to int
         if unsignedint or signedint:
             outdata = int(outdata)
-            if self.verbose: print("Return Type: integer")
+            if self.verbose:
+                print("Return Type: integer")
         else:
         # Convert if convertable to float
             if signedfloat or unsignedfloat:
                 outdata = float(outdata)
-                if self.verbose: print("Return Type: floating point number")
+                if self.verbose:
+                    print("Return Type: floating point number")
             else:
-                if self.verbose: print("Return Type: string")
+                if self.verbose:
+                    print("Return Type: string")
         # if not converted return string
         return outdata
 
@@ -794,7 +809,8 @@ class FileUtil():
             bytearr = bytearr[kwargs['skipcount']:]
 
         if 'skipbyte' in kwargs.keys():
-            bytearr = bytes([byt for byt in bytearr if byt not in self.__to_list__(kwargs['skipbyte'])])
+            bytearr = bytes([byt for byt in bytearr \
+                if byt not in self.__to_list__(kwargs['skipbyte'])])
 
         if 'endiness' in kwargs.keys():
             if kwargs['endiness'].lower() in param.endiness.keys():
@@ -805,10 +821,7 @@ class FileUtil():
         else:
             placeholder = param.endiness['native']
 
-        if groupas == 'str' and 'stringseparator' in kwargs.keys():
-            split = True
-        else:
-            split = False
+        split = groupas == 'str' and 'stringseparator' in kwargs
 
         if groupas.lower() in param.groupas.keys():
             outtype = groupas.lower()
@@ -884,44 +897,16 @@ class FileUtil():
             files = []
         return files
 
-        """
-        Description
-        -----------
-        returns the status if the file or directory exist.
-
-        Input Parameter
-        ---------------
-        path : complete path for file or directory.
-        flag : indicate if path provided is file or directory: 'file'/'dir'
-
-        Input Parameter Type
-        --------------------
-        path : str --> required
-        flag: str --> required
-
-        Return
-        ------
-        Status if path exist
-
-        Return Type
-        -----------
-        bool
-        """
-        if self.verbose:
-            print("Function call: path_valid(args)")
-        if flag.lower() == 'file':
-            return os.path.isfile(path)
-        elif flag.lower() == 'dir':
-            return os.path.isdir(path)
-        else:
-            return False
-
     def delete_files(self, path, force=False):
+        """
+        Delete files
+        """
         pass
 
     def __get_read_method__(self, filepath):
         #to-do: documentation
-        if self.verbose: print("Function call: getReadMethod(args)")
+        if self.verbose:
+            print("Function call: getReadMethod(args)")
         filepath = os.path.basename(filepath)
         ext = ''
         read = ''
@@ -933,6 +918,8 @@ class FileUtil():
                 break
         if read == '':
             self.warning += 1
-            if self.verbose: print("Warning[%d]: extension not fount in parameter list, reading as %s."%(self.warning, param.default))
+            if self.verbose:
+                print("Warning[%d]: extension not fount, reading as %s."\
+                    %(self.warning, param.default))
             read = param.default
         return read
