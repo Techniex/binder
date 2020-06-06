@@ -24,8 +24,6 @@ class Reader(fileutil.FileUtil):
     ---------------
     __init__()
     """
-    def __init__(self, verbose=False):
-        super().__init__(verbose)
 
     def read_text(self, filepath, **kwargs):
         """
@@ -43,23 +41,25 @@ class Reader(fileutil.FileUtil):
                     number of lines to be skipped from top. default = 0
                     till the line where the str is in line is stripped from top.
                 kwargs['skip_bottom'](positive int) :
-                    number of lines to be skipped from top. default = 0
+                    number of lines to be skipped from bottom. default = 0
                     first line from bottom with occurance of specified str
-                kwargs['comment_handle'](dict):
+                kwargs['comment_handler'](dict):
                     parameters required to operate on comments.
-                        comment_handle['comment_method'](str): default = 'none'
+                        comment_handler['comment_method'](str): default = 'none'
                             options = 'none', 'skip', 'uncomment'
-                        comment_handle['lcid'](str/tuple) :
+                        comment_handler['lcid'](str/tuple) :
                             line comment identifier. default = '#'
-                        comment_handle['mlcid](list) :
+                        comment_handler['mlcid'](list) :
                             multiline comment identifier [start, stop] default = []
-                        comment_handle['docstring_method'](str): default = 'none'
+                        comment_handler['remove_inline_comment'](bool) : default = False
+                        comment_handler['docstring_method'](str): default = 'none'
                             options = 'none', 'skip', 'read'
-                        comment_handle['ldocid'](str/tuple) :
+                        comment_handler['ldocid'](str/tuple) :
                             one line docstring identifier. default = "#!"
-                        comment_handle['mldocid'](list) :
+                        comment_handler['mldocid'](list) :
                             one line docstring identifier. default = ['"""' , '"""']
-                        comment_handle['skipwhitelines'](bool): default = False
+                        comment_handler['skip_white_lines'](bool): default = False
+                        comment_handler['escape_char'](str): escape character, default = ''
                 kwargs['filters'](str/list):
                     filter to choose/reject lines from selected section of file. default = []
                 kwargs['data_format'](str):
@@ -75,25 +75,38 @@ class Reader(fileutil.FileUtil):
         """
 
         if self.verbose:
-            print("Function call: readTxt(args)")
+            print("Function call: read_text(args)")
 
         #initialize return
         rdict = {'error':self.error, 'warning':self.warning}
 
-        # Load default kwargs if not provided by user
-        kwargs = self.__loadkwargs__(filepath, 'text', kwargs)
-
         # Read file get all lines in list
-        with open(filepath, 'r') as infile:
-            original_lines = infile.read().splitlines()
+        try:
+            with open(filepath, 'r') as infile:
+                original_lines = infile.read().splitlines()
+        except IOError:
+            self.error = 1
+            rdict['error'] = self.error
+            if self.verbose:
+                print(param.errordisc[1].format(filepath))
+            return rdict
+
+        # Load default kwargs if not provided by user
+        kwargs = self.__loadkwargs__(filepath, 'read_text', kwargs)
 
         # get data
-        selected_lines = original_lines[kwargs['skip_top']:\
-            len(original_lines)-kwargs['skip_bottom']]
+        selected_lines = self.linestrip_top_bottom(original_lines, \
+            kwargs['skip_top'], kwargs['skip_bottom'])
 
         #comment handler
+        inline = kwargs['comment_handle']['remove_inline_comment']
+        kwargs['comment_handle']['remove_inline_comment'] = False
         [stripped_lines, docstring] = self.comment_handler(selected_lines,\
-             kwargs['comment_handle'])[0]
+             kwargs['comment_handle'])
+        kwargs['comment_handle']['comment_method'] = 'none'
+        kwargs['comment_handle']['docstring_method'] = 'none'
+        kwargs['comment_handle']['skip_white_line'] = False
+        kwargs['comment_handle']['remove_inline_comment'] = inline
 
         # filter data
         filtered_lines = self.str_filter(stripped_lines, kwargs['filters'])
@@ -105,6 +118,8 @@ class Reader(fileutil.FileUtil):
         rdict['data'] = formatted_data
         rdict['docstring'] = docstring
         rdict['data_format'] = data_format
+        if self.verbose:
+            print("Success: File read successful\n%s"%filepath)
         return rdict
 
     # TODO : image read from binary

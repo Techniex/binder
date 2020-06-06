@@ -10,6 +10,7 @@ from . import fileutil
 
 class Writer(fileutil.fUtil):
   def writeTxt(self, filepath, data, **kwargs):
+    # TODO : write list, dict, line, vdict, vlist and append methods
     pass
   def writeRaw(self, filepath, data, **kwargs):
     pass

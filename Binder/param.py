@@ -22,11 +22,17 @@ method = {'text' : ['c', 'cpp', 'csv', 'h', 'm', 'py', 'tab', 'txt'],
           'image' : ['png', 'jpg', 'jpeg', 'bmp'],
           'raw' : ['raw','bin','dat', 'ip']}
 
+# default_comment_handler
+defaultcommenthandler = {'comment_method':'none', 'lcid':'#', 'mlcid': [],
+                        'docstring_method':'none', 'ldocid':'#!', 'mldocid':['"""', '"""'],
+                        'remove_inline_comment':False, 'skip_white_lines':False, 'escape_char':'/'}
+
 # default kwarg values
-keyval = {'text':{'skiplines':0, 'headerlines':0, 'skipwhitelines':False, 'commentidentifier':'', 'headercommenthandler':'', 'datacommenthandler':'', 
-                  'headerfilter':'', 'datafilter':'', 'headerdelimeter':[], 'headerformat':'line', 'datadelimeter':[], 'dataformat':'line',},
+keyval = {'read_text':{'skip_top':0, 'skip_bottom':0, 'filters':[], 'data_format':'line', 'delimeter':',',
+                'comment_handler':defaultcommenthandler},
           'image':{},
           'raw':{}}
+
 
 # default read method
 default = 'text'
@@ -44,10 +50,12 @@ bytecount = {'int8':1, 'uint8':1, 'int16':2, 'uint16':2, 'int32':4, 'uint32':4, 
 supportedformat = ['dict', 'line', 'list', 'vdict', 'vlist']
 
 #commentmethod
-comment_method = ['skip' , 'uncomment', 'read']
+comment_method = ['skip' , 'uncomment', 'none']
+docstring_method = ['skip', 'read', 'none']
 
 #error description
 errordisc = {0: 'File operation complete : {file}:',
             -1: 'Error: File[{file}] not found.',
-            1: 'Error: Number of skipped lines are more than total number of lines in file[{file}].',
-            2: 'Error: Wrong parameter [{para}] values. Conditions: {cd}'}
+            1: 'IO error, unable to read.\n{file}',
+            2: 'Error: Number of skipped lines are more than total number of lines in file[{file}].',
+            3: 'Error: Wrong parameter [{para}] values. Conditions: {cd}'}
